@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>657</width>
+    <height>397</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QComboBox" name="queries">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>30</y>
+      <width>451</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>question 1 : nombre de pays dans la collection.</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>question 2 : lister les differents continents.</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>question 3: lister les information de l'algérie.</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>question 4: les pays africains dont la population est inferieure a 100k.</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>question 5: les pays independants du continent oceanique.</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>question 6: le continent avec la plus grande surface.</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>question 7: par continent , le nombre de pays , population ,nombre de pays independants.</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>question 8: la population totale des villes d’Algérie.</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>question 9: capitale (uniquement nom de la ville et population) d’Algérie.</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>question 10: les langues parlées dans plus de 15 pays.</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>question 11: pour chaque pays le nombre de villes.</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>question 12: les 10 villes les plus habitées, ainsi que leur pays, dans l’ordre décroissant de la population.</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>question 13: les pays pour lesquels l’Arabe est une langue officielle.</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>question 14: Lister les 5 pays avec le plus de langues parlées.</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>question 15: les pays pour lesquels la somme des populations des villes est supérieure à la population du pays.</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>30</y>
+      <width>47</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Query</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="execute_button">
+    <property name="geometry">
+     <rect>
+      <x>560</x>
+      <y>30</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>execute</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="query_results">
+    <property name="geometry">
+     <rect>
+      <x>23</x>
+      <y>70</y>
+      <width>611</width>
+      <height>281</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>657</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

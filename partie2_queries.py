@@ -1,12 +1,16 @@
 from asyncio.windows_events import NULL
 from pymongo import MongoClient
 import json
+import pprint
+
+pp = pprint.PrettyPrinter(indent=4)
+
 client = MongoClient('localhost', 27017)
 print('client créé')
 db = client['BDD']
 world = db['world']
 #question 1 : nombre de pays dans la collection.
-nb_pays=world.count_documents({})
+q1=world.count_documents({})
 print('nombre de pays : ',nb_pays)
 #question 2 : lister les differents continents.
 q2=world.distinct("Continent")
@@ -15,7 +19,8 @@ print('les différents continents: ',q2)
 #question 3: lister les information de l'algérie
 q3=list(world.find({"Name":"Algeria"},{"_id":0}))
 print("***********************************\n")
-#print('les informations de l\'Algérie: \n',q3)
+print('les informations de l\'Algérie: \n')
+pp.pprint(q3)
 #question 4: les pays africains dont la population est inferieure a 100k
 q4=list(world.find({"Continent":"Africa","Population" : {"$lt":100000}},{"_id":0,"Name":1}))
 print("***********************************\n")
