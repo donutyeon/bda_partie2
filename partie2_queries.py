@@ -11,7 +11,7 @@ db = client['BDD']
 world = db['world']
 #question 1 : nombre de pays dans la collection.
 q1=world.count_documents({})
-print('nombre de pays : ',nb_pays)
+print('nombre de pays : ',q1)
 #question 2 : lister les differents continents.
 q2=world.distinct("Continent")
 print("***********************************\n")
