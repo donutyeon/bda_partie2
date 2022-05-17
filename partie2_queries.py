@@ -11,11 +11,13 @@ db = client['BDD']
 world = db['world']
 #question 1 : nombre de pays dans la collection.
 q1=world.count_documents({})
-print('nombre de pays : ',q1)
+print('nombre de pays : ')
+pp.pprint(q1)
 #question 2 : lister les differents continents.
 q2=world.distinct("Continent")
 print("***********************************\n")
-print('les différents continents: ',q2)
+print('les différents continents: ')
+pp.pprint(q2)
 #question 3: lister les information de l'algérie
 q3=list(world.find({"Name":"Algeria"},{"_id":0}))
 print("***********************************\n")
@@ -25,11 +27,13 @@ pp.pprint(q3)
 q4=list(world.find({"Continent":"Africa","Population" : {"$lt":100000}},{"_id":0,"Name":1}))
 print("***********************************\n")
 
-print('pays africains :\n',q4)
+print('pays africains :\n')
+pp.pprint(q4)
 #question 5: les pays independants du continent oceanique
 q5=list(world.find({"Continent":"Oceania","IndepYear" : {"$ne":"NA"}},{"_id":0,"Name":1}))
 print("***********************************\n")
-print('pays independants :\n',q5)
+print('pays independants :\n')
+pp.pprint(q5)
 #question 6 : le continent avec la plus grande surface
 q6=list(world.aggregate([
     {"$group" :
@@ -41,7 +45,8 @@ q6=list(world.aggregate([
     {"$limit":1}
 ]))
 print("***********************************\n")
-print('continent ayant la plus grande surface :\n',q6);
+print('continent ayant la plus grande surface :\n')
+pp.pprint(q6)
 #question 7: par continent , le nombre de pays , population ,nombre de pays independants , cant figure out independant countries yet sautitha
 q7=list(world.aggregate([
     {
@@ -52,7 +57,8 @@ q7=list(world.aggregate([
         }
     }
 ]))
-print("***********************************\n",q7)
+print("***********************************\n")
+pp.pprint(q7)
 #question 8:la population totale des villes d’Algérie
 q8=list(world.aggregate([
     {
@@ -70,10 +76,12 @@ q8=list(world.aggregate([
         }
     }
 ]))
-print("***********************************\n",q8)
+print("***********************************\n")
+pp.pprint(q8)
 #q9 : capitale (uniquement nom de la ville et population) d’Algérie
 q9=list(world.find({"Name":"Algeria"},{"Capital.Name":1,"Capital.Population":1,"_id":0}))
-print("***********************************\n",q9)
+print("***********************************\n")
+pp.pprint(q9)
 #q10: les langues parlées dans plus de 15 pays
 q10= list(world.aggregate([
     {
@@ -92,7 +100,8 @@ q10= list(world.aggregate([
         }
     }
 ]))
-print("***********************************\n",q10)
+print("***********************************\n")
+pp.pprint(q10)
 #q11:pour chaque pays le nombre de villes (pour les pays ayant au moins 100 villes), en les
 #triant par ordre décroissant du nombre de villes
 q11=list(world.aggregate([
@@ -114,7 +123,8 @@ q11=list(world.aggregate([
         "$sort":{"Nombre de villes":-1}
     }
 ]))
-print("***********************************\n",q11)
+print("***********************************\n")
+pp.pprint(q11)
 #les 10 villes les plus habitées, ainsi que leur pays, dans l’ordre décroissant de la population
 q12=list(world.aggregate([
     {
@@ -133,7 +143,8 @@ q12=list(world.aggregate([
         "$limit":10
     }
 ]))
-print("***********************************\n",q12)
+print("***********************************\n")
+pp.pprint(q12)
 #q13:les pays pour lesquels l’Arabe est une langue officielle
 q13=list(world.aggregate([
     {"$unwind":"$OffLang"},
@@ -150,7 +161,8 @@ q13=list(world.aggregate([
         }
     }
 ]))
-print("***********************************\n",q13)
+print("***********************************\n")
+pp.pprint(q13)
 #q14: Lister les 5 pays avec le plus de langues parlées
 q14=list(world.aggregate([
     {
@@ -172,7 +184,8 @@ q14=list(world.aggregate([
     },
     {"$limit":5}
 ]))
-print("***********************************\n",q14)
+print("***********************************\n")
+pp.pprint(q14)
 #q15 : les pays pour lesquels la somme des populations des villes est supérieure à la population du pays.
 q15=list(world.aggregate([
     {"$unwind":"$Cities"},
@@ -196,4 +209,5 @@ q15=list(world.aggregate([
         }
     }
 ]))
-print("***********************************\n",q15)
+print("***********************************\n")
+pp.pprint(q15)
