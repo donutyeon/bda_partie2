@@ -5,6 +5,8 @@ from pymongo import MongoClient
 import json
 import pprint
 
+from sympy import Q
+
 
 client = MongoClient('localhost', 27017)
 print('client créé')
@@ -38,16 +40,43 @@ class Ui(QtWidgets.QMainWindow):
                         self.results.setText(pprint.pformat(q1, indent=4))
                 if(question == '2'):
                         q2=world.distinct("Continent")
-                        self.results.setText(pprint.pformat(q2, indent=4))
+                        q2 = pprint.pformat(q2, indent=4)
+                        q2 = q2.replace("]", "")
+                        q2 = q2.replace("[", "")
+                        q2 = q2.replace("\'", "")
+                        q2 = q2.replace(",", "")
+                        q2 = " "+q2
+                        self.results.setText(q2)
                 if(question == '3'):
                         q3=list(world.find({"Name":"Algeria"},{"_id":0}))
-                        self.results.setText(pprint.pformat(q3, indent=4))
+                        q3 = pprint.pformat(q3, indent=4).replace("{", "")
+                        q3 = q3.replace("}", "")
+                        q3 = q3.replace("]", "")
+                        q3 = q3.replace("[", "")
+                        q3 = q3.replace("\'", "")
+                        q3 = q3.replace(",", "")
+                        q3 = " "+q3
+                        self.results.setText(q3)
                 if(question == '4'):
                         q4=list(world.find({"Continent":"Africa","Population" : {"$lt":100000}},{"_id":0,"Name":1}))
-                        self.results.setText(pprint.pformat(q4, indent=4))
+                        q4=pprint.pformat(q4, indent=4).replace("{", "")
+                        q4=q4.replace("}", "")
+                        q4=q4.replace("]", "")
+                        q4=q4.replace("[", "")
+                        q4=q4.replace("\'", "")
+                        q4 = q4.replace(",", "")
+                        q4 = " "+q4
+                        self.results.setText(q4)
                 if(question == '5'):
                         q5=list(world.find({"Continent":"Oceania","IndepYear" : {"$ne":"NA"}},{"_id":0,"Name":1}))
-                        self.results.setText(pprint.pformat(q5, indent=4))
+                        q5=pprint.pformat(q5, indent=4).replace("{", "")
+                        q5=q5.replace("}", "")
+                        q5=q5.replace("]", "")
+                        q5=q5.replace("[", "")
+                        q5=q5.replace("\'", "")
+                        q5 = q5.replace(",", "")
+                        q5 = " "+q5
+                        self.results.setText(q5)
                 if(question == '6'):
                         q6=list(world.aggregate([
                                 {"$group" :
@@ -58,7 +87,14 @@ class Ui(QtWidgets.QMainWindow):
                                 {"$sort":{"Surface":-1}},
                                 {"$limit":1}
                         ]))
-                        self.results.setText(pprint.pformat(q6, indent=4))
+                        q6=pprint.pformat(q6, indent=4).replace("{", "")
+                        q6=q6.replace("}", "")
+                        q6=q6.replace("]", "")
+                        q6=q6.replace("[", "")
+                        q6=q6.replace("\'", "")
+                        q6 = q6.replace(",", "")
+                        q6 = " "+q6
+                        self.results.setText(q6)
                 if(question == '7'):
                         q7=list(world.aggregate([
                                 {"$group":
@@ -68,7 +104,14 @@ class Ui(QtWidgets.QMainWindow):
                                         }
                                 }
                         ]))
-                        self.results.setText(pprint.pformat(q7, indent=4))
+                        q7=pprint.pformat(q7, indent=4).replace("{", "")
+                        q7=q7.replace("}", "")
+                        q7=q7.replace("]", "")
+                        q7=q7.replace("[", "")
+                        q7=q7.replace("\'", "")
+                        q7 = q7.replace(",", "")
+                        q7 = " "+q7
+                        self.results.setText(q7)
                 if(question == '8'):
                         q8=list(world.aggregate([
                                 {
@@ -92,10 +135,24 @@ class Ui(QtWidgets.QMainWindow):
                                         }
                                 }
                                 ]))
-                        self.results.setText(pprint.pformat(q8, indent=4))
+                        q8=pprint.pformat(q8, indent=4).replace("{", "")
+                        q8=q8.replace("}", "")
+                        q8=q8.replace("]", "")
+                        q8=q8.replace("[", "")
+                        q8=q8.replace("\'", "")
+                        q8 = q8.replace(",", "")
+                        q8 = " "+q8
+                        self.results.setText(q8)
                 if(question == '9'):
                         q9=list(world.find({"Name":"Algeria"},{"Capital.Name":1,"Capital.Population":1,"_id":0}))
-                        self.results.setText(pprint.pformat(q9, indent=4))
+                        q9=pprint.pformat(q9, indent=4).replace("{", "")
+                        q9=q9.replace("}", "")
+                        q9=q9.replace("]", "")
+                        q9=q9.replace("[", "")
+                        q9=q9.replace("\'", "")
+                        q9 = q9.replace(",", "")
+                        q9 = " "+q9
+                        self.results.setText(q9)
                 if(question == '10'):
                         q10= list(world.aggregate([
                                 {
@@ -114,7 +171,14 @@ class Ui(QtWidgets.QMainWindow):
                                         }
                                 }
                                 ]))
-                        self.results.setText(pprint.pformat(q10, indent=4))
+                        q10=pprint.pformat(q10, indent=4).replace("{", "")
+                        q10=q10.replace("}", "")
+                        q10=q10.replace("]", "")
+                        q10=q10.replace("[", "")
+                        q10=q10.replace("\'", "")
+                        q10 = q10.replace(",", "")
+                        q10 = " "+q10
+                        self.results.setText(q10)
                 if(question == '11'):
                         q11=list(world.aggregate([
                                 {
@@ -135,7 +199,14 @@ class Ui(QtWidgets.QMainWindow):
                                         "$sort":{"Nombre de villes":-1}
                                 }
                                 ]))
-                        self.results.setText(pprint.pformat(q11, indent=4))
+                        q11=pprint.pformat(q11, indent=4).replace("{", "")
+                        q11=q11.replace("}", "")
+                        q11=q11.replace("]", "")
+                        q11=q11.replace("[", "")
+                        q11=q11.replace("\'", "")
+                        q11 = q11.replace(",", "")
+                        q11 = " "+q11
+                        self.results.setText(q11)
                 if(question == '12'):
                         q12=list(world.aggregate([
                                 {
@@ -154,7 +225,14 @@ class Ui(QtWidgets.QMainWindow):
                                         "$limit":10
                                 }
                                 ]))
-                        self.results.setText(pprint.pformat(q12, indent=4))
+                        q12=pprint.pformat(q12, indent=4).replace("{", "")
+                        q12=q12.replace("}", "")
+                        q12=q12.replace("]", "")
+                        q12=q12.replace("[", "")
+                        q12=q12.replace("\'", "")
+                        q12 = q12.replace(",", "")
+                        q12 = " "+q12
+                        self.results.setText(q12)
                 if(question == '13'):
                         q13=list(world.aggregate([
                                 {"$unwind":"$OffLang"},
@@ -171,7 +249,14 @@ class Ui(QtWidgets.QMainWindow):
                                         }
                                 }
                                 ]))
-                        self.results.setText(pprint.pformat(q13, indent=4))
+                        q13=pprint.pformat(q13, indent=4).replace("{", "")
+                        q13=q13.replace("}", "")
+                        q13=q13.replace("]", "")
+                        q13=q13.replace("[", "")
+                        q13=q13.replace("\'", "")
+                        q13 = q13.replace(",", "")
+                        q13 = " "+q13
+                        self.results.setText(q13)
                 if(question == '14'):
                         q14=list(world.aggregate([
                                 {
@@ -193,7 +278,14 @@ class Ui(QtWidgets.QMainWindow):
                                 },
                                 {"$limit":5}
                                 ]))
-                        self.results.setText(pprint.pformat(q14, indent=4))
+                        q14=pprint.pformat(q14, indent=4).replace("{", "")
+                        q14=q14.replace("}", "")
+                        q14=q14.replace("]", "")
+                        q14=q14.replace("[", "")
+                        q14=q14.replace("\'", "")
+                        q14 = q14.replace(",", "")
+                        q14 = " "+q14
+                        self.results.setText(q14)
                 if(question == '15'):
                         q15=list(world.aggregate([
                                 {"$unwind":"$Cities"},
@@ -217,7 +309,14 @@ class Ui(QtWidgets.QMainWindow):
                                         }
                                 }
                                 ]))
-                        self.results.setText(pprint.pformat(q15, indent=4))
+                        q15=pprint.pformat(q15, indent=4).replace("{", "")
+                        q15=q15.replace("}", "")
+                        q15=q15.replace("]", "")
+                        q15=q15.replace("[", "")
+                        q15=q15.replace("\'", "")
+                        q15 = q15.replace(",", "")
+                        q15 = " "+q15
+                        self.results.setText(q15)
                 
                 
                 
