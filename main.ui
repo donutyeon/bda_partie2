@@ -134,8 +134,34 @@
       <x>23</x>
       <y>50</y>
       <width>611</width>
-      <height>301</height>
+      <height>271</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="connect_button">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>330</y>
+      <width>101</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Connect to DB</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="disconnect_button">
+    <property name="geometry">
+     <rect>
+      <x>514</x>
+      <y>330</y>
+      <width>121</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Disconnect from DB</string>
     </property>
    </widget>
   </widget>

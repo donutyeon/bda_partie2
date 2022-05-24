@@ -1,17 +1,18 @@
-from PyQt5 import QtWidgets, uic
+from pickle import FALSE
+from PyQt5 import QtWidgets, uic, QtGui
 import sys
 from asyncio.windows_events import NULL
 from pymongo import MongoClient
 import json
 import pprint
 
-from sympy import Q
 
-
-client = MongoClient('localhost', 27017)
-print('client créé')
-db = client['BDD']
-world = db['world']
+global ready
+ready = False 
+# client = MongoClient('localhost', 27017)
+# print('client créé')
+# db = client['BDD']
+# world = db['world']
 
 class Ui(QtWidgets.QMainWindow):
         def __init__(self):
@@ -28,299 +29,341 @@ class Ui(QtWidgets.QMainWindow):
                 self.results =  self.findChild(QtWidgets.QTextEdit, 'query_results')
                 self.results.setReadOnly(True)
 
+                #### DB connection buttons
+                self.connect_db =  self.findChild(QtWidgets.QPushButton, 'connect_button')
+                self.connect_db.clicked.connect(self.connectClickListener)
+                self.disconnect_db =  self.findChild(QtWidgets.QPushButton, 'disconnect_button')
+                self.disconnect_db.clicked.connect(self.disconnectClickListener)
+
 
         ########################################################################################################
         #############################      BUTTON LISTENERS       ##############################################
+        def connectClickListener(self):
+                global client
+                client = MongoClient('localhost', 27017)
+                global ready
+                ready = True
+                print('client créé')
+                db = client['BDD']
+                global world
+                world = db['world']
+                with open("world-mongodb.json",encoding="utf-8") as file : 
+                        file_data=json.load(file)
+                print("got the file's elements")
+                if(isinstance(file_data, list)):
+                        world.delete_many({})
+                        
+                        print("inserting many...")
+                        world.insert_many(file_data)
+                        print("data inserted")
+                        
+                else :
+                        world.insert_one(file_data)
+                        print("data not inserted")
+        def disconnectClickListener(self):
+                client.close()
+                global ready
+                ready = False
 
         def executeClickListener(self):
-                question = self.queries.currentText()
-                question = question[len("question"): question.index(":")].strip()
-                if(question == '1'):
-                        q1=world.count_documents({})
-                        self.results.setText(pprint.pformat(q1, indent=4))
-                if(question == '2'):
-                        q2=world.distinct("Continent")
-                        q2 = pprint.pformat(q2, indent=4)
-                        q2 = q2.replace("]", "")
-                        q2 = q2.replace("[", "")
-                        q2 = q2.replace("\'", "")
-                        q2 = q2.replace(",", "")
-                        q2 = " "+q2
-                        self.results.setText(q2)
-                if(question == '3'):
-                        q3=list(world.find({"Name":"Algeria"},{"_id":0}))
-                        q3 = pprint.pformat(q3, indent=4).replace("{", "")
-                        q3 = q3.replace("}", "")
-                        q3 = q3.replace("]", "")
-                        q3 = q3.replace("[", "")
-                        q3 = q3.replace("\'", "")
-                        q3 = q3.replace(",", "")
-                        q3 = " "+q3
-                        self.results.setText(q3)
-                if(question == '4'):
-                        q4=list(world.find({"Continent":"Africa","Population" : {"$lt":100000}},{"_id":0,"Name":1}))
-                        q4=pprint.pformat(q4, indent=4).replace("{", "")
-                        q4=q4.replace("}", "")
-                        q4=q4.replace("]", "")
-                        q4=q4.replace("[", "")
-                        q4=q4.replace("\'", "")
-                        q4 = q4.replace(",", "")
-                        q4 = " "+q4
-                        self.results.setText(q4)
-                if(question == '5'):
-                        q5=list(world.find({"Continent":"Oceania","IndepYear" : {"$ne":"NA"}},{"_id":0,"Name":1}))
-                        q5=pprint.pformat(q5, indent=4).replace("{", "")
-                        q5=q5.replace("}", "")
-                        q5=q5.replace("]", "")
-                        q5=q5.replace("[", "")
-                        q5=q5.replace("\'", "")
-                        q5 = q5.replace(",", "")
-                        q5 = " "+q5
-                        self.results.setText(q5)
-                if(question == '6'):
-                        q6=list(world.aggregate([
-                                {"$group" :
-                                        {
-                                                "_id":"$Continent","Surface" :{"$sum":"$SurfaceArea"}
-                                        }
-                                },
-                                {"$sort":{"Surface":-1}},
-                                {"$limit":1}
-                        ]))
-                        q6=pprint.pformat(q6, indent=4).replace("{", "")
-                        q6=q6.replace("}", "")
-                        q6=q6.replace("]", "")
-                        q6=q6.replace("[", "")
-                        q6=q6.replace("\'", "")
-                        q6 = q6.replace(",", "")
-                        q6 = " "+q6
-                        self.results.setText(q6)
-                if(question == '7'):
-                        q7=list(world.aggregate([
-                                {"$group":
-                                        {
-                                                "_id":"$Continent","Nombre de pays":{"$sum":1},"Population":{"$sum":"$Population"},
-                                                "Nombre pays independant":{"$sum":{"$cond":{"if":{"$eq":["$IndepYear","NA"]},"then":0,"else":1}}}
-                                        }
-                                }
-                        ]))
-                        q7=pprint.pformat(q7, indent=4).replace("{", "")
-                        q7=q7.replace("}", "")
-                        q7=q7.replace("]", "")
-                        q7=q7.replace("[", "")
-                        q7=q7.replace("\'", "")
-                        q7 = q7.replace(",", "")
-                        q7 = " "+q7
-                        self.results.setText(q7)
-                if(question == '8'):
-                        q8=list(world.aggregate([
-                                {
-                                        "$match":
-                                        {
-                                        "Name" : "Algeria"
-                                        }
-                                },
-                                {
-                                        "$unwind":"$Cities"
-                                },
-                                {
-                                        "$group":{
-                                        "_id":NULL,"population totale des villes":{"$sum":"$Cities.Population"}
-                                        }
-                                },
-                                {
-                                        "$project":
-                                        {
-                                                "_id":0
-                                        }
-                                }
+                if(ready):
+                        client.admin.command('ismaster')
+                        question = self.queries.currentText()
+                        question = question[len("question"): question.index(":")].strip()
+                        if(question == '1'):
+                                q1=world.count_documents({})
+                                self.results.setText(pprint.pformat(q1, indent=4))
+                        if(question == '2'):
+                                q2=world.distinct("Continent")
+                                q2 = pprint.pformat(q2, indent=4)
+                                q2 = q2.replace("]", "")
+                                q2 = q2.replace("[", "")
+                                q2 = q2.replace("\'", "")
+                                q2 = q2.replace(",", "")
+                                q2 = " "+q2
+                                self.results.setText(q2)
+                        if(question == '3'):
+                                q3=list(world.find({"Name":"Algeria"},{"_id":0}))
+                                q3 = pprint.pformat(q3, indent=4).replace("{", "")
+                                q3 = q3.replace("}", "")
+                                q3 = q3.replace("]", "")
+                                q3 = q3.replace("[", "")
+                                q3 = q3.replace("\'", "")
+                                q3 = q3.replace(",", "")
+                                q3 = " "+q3
+                                self.results.setText(q3)
+                        if(question == '4'):
+                                q4=list(world.find({"Continent":"Africa","Population" : {"$lt":100000}},{"_id":0,"Name":1}))
+                                q4=pprint.pformat(q4, indent=4).replace("{", "")
+                                q4=q4.replace("}", "")
+                                q4=q4.replace("]", "")
+                                q4=q4.replace("[", "")
+                                q4=q4.replace("\'", "")
+                                q4 = q4.replace(",", "")
+                                q4 = " "+q4
+                                self.results.setText(q4)
+                        if(question == '5'):
+                                q5=list(world.find({"Continent":"Oceania","IndepYear" : {"$ne":"NA"}},{"_id":0,"Name":1}))
+                                q5=pprint.pformat(q5, indent=4).replace("{", "")
+                                q5=q5.replace("}", "")
+                                q5=q5.replace("]", "")
+                                q5=q5.replace("[", "")
+                                q5=q5.replace("\'", "")
+                                q5 = q5.replace(",", "")
+                                q5 = " "+q5
+                                self.results.setText(q5)
+                        if(question == '6'):
+                                q6=list(world.aggregate([
+                                        {"$group" :
+                                                {
+                                                        "_id":"$Continent","Surface" :{"$sum":"$SurfaceArea"}
+                                                }
+                                        },
+                                        {"$sort":{"Surface":-1}},
+                                        {"$limit":1}
                                 ]))
-                        q8=pprint.pformat(q8, indent=4).replace("{", "")
-                        q8=q8.replace("}", "")
-                        q8=q8.replace("]", "")
-                        q8=q8.replace("[", "")
-                        q8=q8.replace("\'", "")
-                        q8 = q8.replace(",", "")
-                        q8 = " "+q8
-                        self.results.setText(q8)
-                if(question == '9'):
-                        q9=list(world.find({"Name":"Algeria"},{"Capital.Name":1,"Capital.Population":1,"_id":0}))
-                        q9=pprint.pformat(q9, indent=4).replace("{", "")
-                        q9=q9.replace("}", "")
-                        q9=q9.replace("]", "")
-                        q9=q9.replace("[", "")
-                        q9=q9.replace("\'", "")
-                        q9 = q9.replace(",", "")
-                        q9 = " "+q9
-                        self.results.setText(q9)
-                if(question == '10'):
-                        q10= list(world.aggregate([
-                                {
-                                        "$unwind":"$OffLang"
-                                },
-                                {
-                                        "$group":
-                                        {
-                                        "_id":"$OffLang.Language","nb":{"$sum":1}
+                                q6=pprint.pformat(q6, indent=4).replace("{", "")
+                                q6=q6.replace("}", "")
+                                q6=q6.replace("]", "")
+                                q6=q6.replace("[", "")
+                                q6=q6.replace("\'", "")
+                                q6 = q6.replace(",", "")
+                                q6 = " "+q6
+                                self.results.setText(q6)
+                        if(question == '7'):
+                                q7=list(world.aggregate([
+                                        {"$group":
+                                                {
+                                                        "_id":"$Continent","Nombre de pays":{"$sum":1},"Population":{"$sum":"$Population"},
+                                                        "Nombre pays independant":{"$sum":{"$cond":{"if":{"$eq":["$IndepYear","NA"]},"then":0,"else":1}}}
+                                                }
                                         }
-                                },
-                                {
-                                        "$match":
-                                        {
-                                        "nb":{"$gt":15}
-                                        }
-                                }
                                 ]))
-                        q10=pprint.pformat(q10, indent=4).replace("{", "")
-                        q10=q10.replace("}", "")
-                        q10=q10.replace("]", "")
-                        q10=q10.replace("[", "")
-                        q10=q10.replace("\'", "")
-                        q10 = q10.replace(",", "")
-                        q10 = " "+q10
-                        self.results.setText(q10)
-                if(question == '11'):
-                        q11=list(world.aggregate([
-                                {
-                                        "$project":
+                                q7=pprint.pformat(q7, indent=4).replace("{", "")
+                                q7=q7.replace("}", "")
+                                q7=q7.replace("]", "")
+                                q7=q7.replace("[", "")
+                                q7=q7.replace("\'", "")
+                                q7 = q7.replace(",", "")
+                                q7 = " "+q7
+                                self.results.setText(q7)
+                        if(question == '8'):
+                                q8=list(world.aggregate([
                                         {
-                                        "_id":0,
-                                        "Name": 1,
-                                        "Nombre de villes": { "$cond": { "if": { "$isArray": "$Cities" }, "then": { "$size": "$Cities" }, "else": "NA"} }
-                                        }
-                                },
-                                {
-                                        "$match":
+                                                "$match":
+                                                {
+                                                "Name" : "Algeria"
+                                                }
+                                        },
                                         {
-                                        "Nombre de villes":{"$gt":100}
-                                        }
-                                },    
-                                {
-                                        "$sort":{"Nombre de villes":-1}
-                                }
-                                ]))
-                        q11=pprint.pformat(q11, indent=4).replace("{", "")
-                        q11=q11.replace("}", "")
-                        q11=q11.replace("]", "")
-                        q11=q11.replace("[", "")
-                        q11=q11.replace("\'", "")
-                        q11 = q11.replace(",", "")
-                        q11 = " "+q11
-                        self.results.setText(q11)
-                if(question == '12'):
-                        q12=list(world.aggregate([
-                                {
-                                        "$unwind":"$Cities"
-                                },
-                                {
-                                        "$project":
+                                                "$unwind":"$Cities"
+                                        },
                                         {
-                                        "Cities.Name":1,"Cities.Population":1,"Name":1,"_id":0
-                                        }
-                                },
-                                {
-                                        "$sort":{"Cities.Population":-1}
-                                },
-                                {
-                                        "$limit":10
-                                }
-                                ]))
-                        q12=pprint.pformat(q12, indent=4).replace("{", "")
-                        q12=q12.replace("}", "")
-                        q12=q12.replace("]", "")
-                        q12=q12.replace("[", "")
-                        q12=q12.replace("\'", "")
-                        q12 = q12.replace(",", "")
-                        q12 = " "+q12
-                        self.results.setText(q12)
-                if(question == '13'):
-                        q13=list(world.aggregate([
-                                {"$unwind":"$OffLang"},
-                                {
-                                        "$project":
+                                                "$group":{
+                                                "_id":NULL,"population totale des villes":{"$sum":"$Cities.Population"}
+                                                }
+                                        },
                                         {
-                                        "Name":1,"_id":0,"Arabic":{"$eq":[ "Arabic", "$OffLang.Language"]}
+                                                "$project":
+                                                {
+                                                        "_id":0
+                                                }
                                         }
-                                },
-                                {
-                                        "$match":
+                                        ]))
+                                q8=pprint.pformat(q8, indent=4).replace("{", "")
+                                q8=q8.replace("}", "")
+                                q8=q8.replace("]", "")
+                                q8=q8.replace("[", "")
+                                q8=q8.replace("\'", "")
+                                q8 = q8.replace(",", "")
+                                q8 = " "+q8
+                                self.results.setText(q8)
+                        if(question == '9'):
+                                q9=list(world.find({"Name":"Algeria"},{"Capital.Name":1,"Capital.Population":1,"_id":0}))
+                                q9=pprint.pformat(q9, indent=4).replace("{", "")
+                                q9=q9.replace("}", "")
+                                q9=q9.replace("]", "")
+                                q9=q9.replace("[", "")
+                                q9=q9.replace("\'", "")
+                                q9 = q9.replace(",", "")
+                                q9 = " "+q9
+                                self.results.setText(q9)
+                        if(question == '10'):
+                                q10= list(world.aggregate([
                                         {
-                                        "Arabic":True
-                                        }
-                                }
-                                ]))
-                        q13=pprint.pformat(q13, indent=4).replace("{", "")
-                        q13=q13.replace("}", "")
-                        q13=q13.replace("]", "")
-                        q13=q13.replace("[", "")
-                        q13=q13.replace("\'", "")
-                        q13 = q13.replace(",", "")
-                        q13 = " "+q13
-                        self.results.setText(q13)
-                if(question == '14'):
-                        q14=list(world.aggregate([
-                                {
-                                        "$project":
+                                                "$unwind":"$OffLang"
+                                        },
                                         {
-                                        "Name":1,
-                                        "Nombre de langue off": { "$cond": { "if": { "$isArray": "$OffLang" }, "then": { "$size": "$OffLang" }, "else": 0} },
-                                        "Nombre de langue non off": { "$cond": { "if": { "$isArray": "$NotOffLang" }, "then": { "$size": "$NotOffLang" }, "else": 0} }
-                                        }
-                                },
-                                {
-                                        "$project":
+                                                "$group":
+                                                {
+                                                "_id":"$OffLang.Language","nb":{"$sum":1}
+                                                }
+                                        },
                                         {
-                                        "_id":0,"Name":1,"Nombre de langues":{"$add":["$Nombre de langue off","$Nombre de langue non off"]}
+                                                "$match":
+                                                {
+                                                "nb":{"$gt":15}
+                                                }
                                         }
-                                },
-                                {
-                                        "$sort":{"Nombre de langues":-1}
-                                },
-                                {"$limit":5}
-                                ]))
-                        q14=pprint.pformat(q14, indent=4).replace("{", "")
-                        q14=q14.replace("}", "")
-                        q14=q14.replace("]", "")
-                        q14=q14.replace("[", "")
-                        q14=q14.replace("\'", "")
-                        q14 = q14.replace(",", "")
-                        q14 = " "+q14
-                        self.results.setText(q14)
-                if(question == '15'):
-                        q15=list(world.aggregate([
-                                {"$unwind":"$Cities"},
-                                {
-                                        "$group":
+                                        ]))
+                                q10=pprint.pformat(q10, indent=4).replace("{", "")
+                                q10=q10.replace("}", "")
+                                q10=q10.replace("]", "")
+                                q10=q10.replace("[", "")
+                                q10=q10.replace("\'", "")
+                                q10 = q10.replace(",", "")
+                                q10 = " "+q10
+                                self.results.setText(q10)
+                        if(question == '11'):
+                                q11=list(world.aggregate([
                                         {
-                                        "_id":"$Name","Population des villes":{"$sum":"$Cities.Population"},"Population":{"$first":"$Population"}
-                                        }
-                                },
-                                {
-                                        "$project":
+                                                "$project":
+                                                {
+                                                "_id":0,
+                                                "Name": 1,
+                                                "Nombre de villes": { "$cond": { "if": { "$isArray": "$Cities" }, "then": { "$size": "$Cities" }, "else": "NA"} }
+                                                }
+                                        },
                                         {
-                                        "_id":1,"Population des villes":1,"Population":1,
-                                        "population villes superieure":{"$cond":{"if":{"$gt":["$Population des villes","$Population"]},"then":1,"else":0}}
-                                        }
-                                },
-                                {
-                                        "$match":
+                                                "$match":
+                                                {
+                                                "Nombre de villes":{"$gt":100}
+                                                }
+                                        },    
                                         {
-                                        "population villes superieure":{"$eq":1}
+                                                "$sort":{"Nombre de villes":-1}
                                         }
-                                }
-                                ]))
-                        q15=pprint.pformat(q15, indent=4).replace("{", "")
-                        q15=q15.replace("}", "")
-                        q15=q15.replace("]", "")
-                        q15=q15.replace("[", "")
-                        q15=q15.replace("\'", "")
-                        q15 = q15.replace(",", "")
-                        q15 = " "+q15
-                        self.results.setText(q15)
-                
-                
-                
+                                        ]))
+                                q11=pprint.pformat(q11, indent=4).replace("{", "")
+                                q11=q11.replace("}", "")
+                                q11=q11.replace("]", "")
+                                q11=q11.replace("[", "")
+                                q11=q11.replace("\'", "")
+                                q11 = q11.replace(",", "")
+                                q11 = " "+q11
+                                self.results.setText(q11)
+                        if(question == '12'):
+                                q12=list(world.aggregate([
+                                        {
+                                                "$unwind":"$Cities"
+                                        },
+                                        {
+                                                "$project":
+                                                {
+                                                "Cities.Name":1,"Cities.Population":1,"Name":1,"_id":0
+                                                }
+                                        },
+                                        {
+                                                "$sort":{"Cities.Population":-1}
+                                        },
+                                        {
+                                                "$limit":10
+                                        }
+                                        ]))
+                                q12=pprint.pformat(q12, indent=4).replace("{", "")
+                                q12=q12.replace("}", "")
+                                q12=q12.replace("]", "")
+                                q12=q12.replace("[", "")
+                                q12=q12.replace("\'", "")
+                                q12 = q12.replace(",", "")
+                                q12 = " "+q12
+                                self.results.setText(q12)
+                        if(question == '13'):
+                                q13=list(world.aggregate([
+                                        {"$unwind":"$OffLang"},
+                                        {
+                                                "$project":
+                                                {
+                                                "Name":1,"_id":0,"Arabic":{"$eq":[ "Arabic", "$OffLang.Language"]}
+                                                }
+                                        },
+                                        {
+                                                "$match":
+                                                {
+                                                "Arabic":True
+                                                }
+                                        }
+                                        ]))
+                                q13=pprint.pformat(q13, indent=4).replace("{", "")
+                                q13=q13.replace("}", "")
+                                q13=q13.replace("]", "")
+                                q13=q13.replace("[", "")
+                                q13=q13.replace("\'", "")
+                                q13 = q13.replace(",", "")
+                                q13 = " "+q13
+                                self.results.setText(q13)
+                        if(question == '14'):
+                                q14=list(world.aggregate([
+                                        {
+                                                "$project":
+                                                {
+                                                "Name":1,
+                                                "Nombre de langue off": { "$cond": { "if": { "$isArray": "$OffLang" }, "then": { "$size": "$OffLang" }, "else": 0} },
+                                                "Nombre de langue non off": { "$cond": { "if": { "$isArray": "$NotOffLang" }, "then": { "$size": "$NotOffLang" }, "else": 0} }
+                                                }
+                                        },
+                                        {
+                                                "$project":
+                                                {
+                                                "_id":0,"Name":1,"Nombre de langues":{"$add":["$Nombre de langue off","$Nombre de langue non off"]}
+                                                }
+                                        },
+                                        {
+                                                "$sort":{"Nombre de langues":-1}
+                                        },
+                                        {"$limit":5}
+                                        ]))
+                                q14=pprint.pformat(q14, indent=4).replace("{", "")
+                                q14=q14.replace("}", "")
+                                q14=q14.replace("]", "")
+                                q14=q14.replace("[", "")
+                                q14=q14.replace("\'", "")
+                                q14 = q14.replace(",", "")
+                                q14 = " "+q14
+                                self.results.setText(q14)
+                        if(question == '15'):
+                                q15=list(world.aggregate([
+                                        {"$unwind":"$Cities"},
+                                        {
+                                                "$group":
+                                                {
+                                                "_id":"$Name","Population des villes":{"$sum":"$Cities.Population"},"Population":{"$first":"$Population"}
+                                                }
+                                        },
+                                        {
+                                                "$project":
+                                                {
+                                                "_id":1,"Population des villes":1,"Population":1,
+                                                "population villes superieure":{"$cond":{"if":{"$gt":["$Population des villes","$Population"]},"then":1,"else":0}}
+                                                }
+                                        },
+                                        {
+                                                "$match":
+                                                {
+                                                "population villes superieure":{"$eq":1}
+                                                }
+                                        }
+                                        ]))
+                                q15=pprint.pformat(q15, indent=4).replace("{", "")
+                                q15=q15.replace("}", "")
+                                q15=q15.replace("]", "")
+                                q15=q15.replace("[", "")
+                                q15=q15.replace("\'", "")
+                                q15 = q15.replace(",", "")
+                                q15 = " "+q15
+                                self.results.setText(q15)
+                else :
+                        # do whatever you need
+                        msg = QtWidgets.QMessageBox()
+                        msg.setIcon(QtWidgets.QMessageBox.Information)
+                        msg.setText("Failed to connect to Mongo Database")
+                        msg.setInformativeText("The connection to the Mongodb database hasn't been established yet, please connect first and try again")
+                        msg.setWindowTitle("Database connection failure")
+                        msg.setDetailedText("The details are as follows:\nBefore you query the database, please make sure to connect to it first by using the 'Connect to DB' button on the main window")
+                        msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+                        msg.exec()
 
+                
 app = QtWidgets.QApplication(sys.argv)
 window = Ui()
 window.show()
